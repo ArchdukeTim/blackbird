@@ -1,6 +1,7 @@
-import sys, enum
+import sys, enum,shlex, subprocess, re
+
 class Color(enum.Enum):
-    RED ='\033[0;31m'
+    RED = '\033[0;31m'
     GREEN ='\033[0;32m'
     YELLOW ='\033[1;33m'
     CYAN ='\033[0;36m'
@@ -40,3 +41,11 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
+def command(command):
+    args = shlex.split(command)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    (out, err) = p.communicate()
+    out = out.decode()
+    outputList = out.splitlines()
+    outputList = list(filter(None, outputList))
+    return outputList

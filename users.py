@@ -1,14 +1,15 @@
-import shlex, subprocess, re
+from SR_71 import query_yes_no, Color, command
 
-from SR_71 import query_yes_no, Color
-
-#command_line = "wmic UserAccount get Name"
-#args = shlex.split(command_line)
-#p = subprocess.Popen(args, stdout=subprocess.PIPE)
-#(out, err) = p.communicate()
-#a = re.findall(r"[\w']+", out.decode())
-for user in ["Tim",     "John", "Phil"]:
-    if query_yes_no("Is %s an authorized user?" % user):
-        print("Allowing user %s to stay" % user)
+users = command("wmic UserAccount get Name")
+del users[0]
+for user in users:
+    user = user.replace(" ", "")
+    cuser = Color.RED.value + user + Color.NC.value
+    if query_yes_no("Is %s an authorized user?" % cuser):
+        print("Allowing user %s to stay" % cuser)
     else:
-        print("Removing user "+ Color.RED.value + "%s" % user + Color.NC.value)
+        print("Removing user  %s" % cuser)
+    if any("*Administrators" in x for x in command("net user %s" % user)):
+        if not query_yes_no("Is %s an authorized administrator?" % cuser):
+            print("Removing %s " % cuser +" from Administrators")
+    
