@@ -1,6 +1,8 @@
 import sys, enum,shlex, subprocess, re
 
 class Color(enum.Enum):
+    def __str__(self):
+        return str(self.value)
     RED = '\033[0;31m'
     GREEN ='\033[0;32m'
     YELLOW ='\033[1;33m'
@@ -10,6 +12,23 @@ class Color(enum.Enum):
     GRAY ='\033[0;37m'
     MAGENTA ='\033[0;37m'
     NC ='\033[0m'
+
+class Log_Types(enum.Enum):
+    def __str__(self):
+        return str(self.value)
+    WARNING = Color.YELLOW
+    ERROR = Color.RED
+    SUCCESS = Color.GREEN
+    TASK = Color.GRAY
+    PROMPT = Color.CYAN
+    
+def log(message, type):
+    types = {"warning" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.WARNING, "WARNING", Color.NC, message),
+             "error" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.ERROR, "ERROR", Color.NC, message),
+             "success" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.SUCCESS, "SUCCESS", Color.NC, message),
+             "task" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.TASK, "TASK", Color.NC, message),
+             "prompt" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.PROMPT, "PROMPT", Color.NC, message) } 
+    print(types[type])
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
 
@@ -43,8 +62,10 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 def command(command):
     args = shlex.split(command)
-    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     (out, err) = p.communicate()
+    if p.returncode != 0:
+        return p.returncode
     out = out.decode()
     outputList = out.splitlines()
     outputList = list(filter(None, outputList))
