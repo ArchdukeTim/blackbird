@@ -1,4 +1,5 @@
-import sys, enum,shlex, subprocess, re
+import sys, enum,shlex, subprocess, re, os
+from collections import Counter
 
 class Color(enum.Enum):
     def __str__(self):
@@ -12,7 +13,6 @@ class Color(enum.Enum):
     GRAY ='\033[0;37m'
     MAGENTA ='\033[0;37m'
     NC ='\033[0m'
-
 class Log_Types(enum.Enum):
     def __str__(self):
         return str(self.value)
@@ -22,23 +22,17 @@ class Log_Types(enum.Enum):
     TASK = Color.GRAY
     PROMPT = Color.CYAN
     
-def log(message, type):
-    types = {"warning" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.WARNING, "WARNING", Color.NC, message),
-             "error" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.ERROR, "ERROR", Color.NC, message),
-             "success" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.SUCCESS, "SUCCESS", Color.NC, message),
-             "task" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.TASK, "TASK", Color.NC, message),
-             "prompt" : "[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, Log_Types.PROMPT, "PROMPT", Color.NC, message) } 
-    print(types[type])
+def log(message, mtype):
+    print("[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, mtype, mtype.name, Color.NC, message))
 def query_yes_no(question, default="yes"):
-    """Ask a yes/no question via raw_input() and return their answer.
-
-    "question" is a string that is presented to the user.
-    "default" is the presumed answer if the user just hits <Enter>.
+    '''Ask a yes/no question via raw_input() and return their answer.
+    :param question: is a string that is presented to the user.
+    :param default: is the presumed answer if the user just hits <Enter>.
         It must be "yes" (the default), "no" or None (meaning
         an answer is required of the user).
 
     The "answer" return value is True for "yes" or False for "no".
-    """
+    '''
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
     if default is None:
@@ -49,7 +43,7 @@ def query_yes_no(question, default="yes"):
         prompt = " [y/N] "
     else:
         raise ValueError("invalid default answer: '%s'" % default)
-
+    
     while True:
         sys.stdout.write(question + prompt)
         choice = input().lower()
@@ -61,6 +55,7 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 def command(command):
+    
     args = shlex.split(command)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     (out, err) = p.communicate()
@@ -70,3 +65,18 @@ def command(command):
     outputList = out.splitlines()
     outputList = list(filter(None, outputList))
     return outputList
+
+
+def verify_forensic():
+    for i in os.listdir(os.path.expanduser("~")+"\\Desktop\\"):
+        if "Forensic" in i:
+            lines =  open(os.path.expanduser("~")+"\\Desktop\\"+i).read()
+            if lines.count("<Type Answer Here>") == 3:
+                log("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
+                return False
+    return True
+# if not verify_forensic():
+#     if not query_yes_no("Do you want to continue?", default = "no"):
+#         sys.exit()
+        
+    

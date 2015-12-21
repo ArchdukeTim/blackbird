@@ -1,9 +1,9 @@
 import sys
 from SR_71 import query_yes_no, Color, command, log, Log_Types
 
-users = command("wmbic UserAccount get Name")
+users = command("wmic UserAccount get Name")
 if users == 1:
-    log("Could not iterate over user accounts", "error")
+    log("Could not iterate over user accounts", Log_Types.ERROR)
     sys.exit()
 del users[0]
 for user in users:
