@@ -11,12 +11,12 @@ class Log_Types(enum.Enum):
         return str(self.value)
     WARNING = Fore.YELLOW
     ERROR = Fore.RED
-    SUCCESS = Fore.GREEN
+    FINISHED = Fore.GREEN
     TASK = Fore.CYAN
     PROMPT = Fore.LIGHTBLACK_EX
     
 def log(message, mtype):
-    print("[%sSR-71%s] [%s%s%s] %s" % (Fore.CYAN, Style.RESET_ALL, mtype, mtype.name, Style.RESET_ALL, message))
+    print("[%sSR-71%s] [%s%s%s] %s" % (Fore.BLUE, Style.RESET_ALL, mtype, mtype.name, Style.RESET_ALL, message))
     
 def query_yes_no(question, default="yes"):
     '''Ask a yes/no question via raw_input() and return their answer.
@@ -92,10 +92,14 @@ class SR_71:
         for x in range(0,10):
             if modules[x][0] != None:
                 for py in modules[x]:
+                    log("Starting %s" % py.task, Log_Types.TASK)
                     py.run()
+                    log(py.task, Log_Types.FINISHED)
             for cmd in cmd_modules:
                 if command("%s priority" % cmd) == x:
+                    log("Starting %s" % cmd, Log_Types.TASK)
                     command(cmd)
+                    log(cmd, Log_Types.FINISHED)
 
 
 if __name__ == '__main__':

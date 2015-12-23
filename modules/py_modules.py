@@ -4,15 +4,17 @@ from colorama import Back, Style
 
             
 class Updates:
+    task = "Updates"
     def run(self):
         update = command("wuapp.exe")
         if update == 1:
             log("Could not start windows update", Log_Types.ERROR)
             return False;
         if query_yes_no("Have you configured windows update?"):
-            log("Started Windows Update", Log_Types.SUCCESS)
+            pass
 
 class Users:
+    task = "Users"
     def run(self):
         users = command("wmic UserAccount get Name")
         if users == 1:
@@ -40,13 +42,18 @@ class Users:
                     
                     
 class Policies:
+    task = "Policies"
     def run(self):
-        log("Installing Policies / Services", Log_Types.TASK)
         cwd = os.getcwd()
-        os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/")) 
+        try:
+            os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/")) 
+        except(FileNotFoundError):
+            log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
+                                
         print(os.getcwd())
 
 class Firewall:
+    task = "Firewall"
     def run(self):
         command("netsh advfirewall set allprofiles state on") # turn on firewall for all types
         command("netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log") # set log file
@@ -58,12 +65,14 @@ class Firewall:
         command("secedit /configure /db %temp%\\temp.sdb /cfg Policies_Services_Template.inf")
 
 class Remote:
+    task = "Remote"
     def run(self):
         command("reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\CurrentControlSet\Control\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 1 /f")
         command("reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\CurrentControlSet\Control\Remote Assistance\" /v fAllowToGetHelp /t REG_DWORD /d 0 /f")
         
 
 class Shares:
+    task = "Remote"
     def run(self): 
         shares = command("net share")
         shares = shares[2:-1]
