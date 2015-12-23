@@ -30,11 +30,15 @@ if '%errorlevel%' NEQ '0' (
 C:\Python34\py.exe test
 
 if errorlevel 3 (
+	cls
+	echo Installing Python3 prerequisite.
 	msiexec /qb+ /i resources\python-3.4.4.amd64.msi
 	goto test
 )
 if errorlevel 2 (
+	echo Installing/Upgrading prerequisite Python modules
 	C:\Python34\Scripts\pip.exe install colorama
+	cls
 	C:\Python34\py.exe SR_71.py
 )
 

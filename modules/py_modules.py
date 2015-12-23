@@ -6,6 +6,7 @@ from colorama import Fore, Style
 class Updates:
     task = "Updates"
     def run(self):
+        command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
         update = command("wuapp.exe")
         if update == 1:
             log("Could not start windows update", Log_Types.ERROR)
@@ -22,6 +23,7 @@ class Users:
             return False
         del users[0]
         for user in users:
+            #log(user, Log_Types.WARNING)
             if any("Built-in" in x for x in command("net user %s" % user)):
                 command("net user %s CyberPatriot1!" % user)
                 command("net user %s /ACTIVE NO" % user)
@@ -69,6 +71,18 @@ class Firewall:
         command("netsh advfirewall set allprofiles firewallpolicy blockinboundalways,allowoutbound")
         log("Block inbounds, allow outbound", Log_Types.LOG)
 
+class IllegalMedia:
+    task = "Illegal Media"
+    def run(self):
+        self.removeFileType("mp3")
+        self.removeFileType("mp4")
+        self.removeFileType("jpg")
+        self.removeFileType("jpeg")
+        
+    def removeFileType(self, fileType):
+        if query_yes_no("do you wish to remove all %s files?" % fileType):
+            command("del /s *.%s" % fileType)
+            
 class Remote:
     task = "Remote"
     def run(self):
@@ -77,7 +91,7 @@ class Remote:
         
 
 class Shares:
-    task = "Remote"
+    task = "Shares"
     def run(self): 
         shares = command("net share")
         shares = shares[2:-1]
