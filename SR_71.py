@@ -15,9 +15,13 @@ class Log_Types(enum.Enum):
     FINISHED = Fore.GREEN
     TASK = Fore.CYAN
     PROMPT = Fore.LIGHTBLACK_EX
+    LOG = Fore.MAGENTA
     
-def log(message, mtype):
+def log(message, mtype, write=True):
     print("[%sSR-71%s] [%s%s%s] %s" % (Fore.BLUE, Style.RESET_ALL, mtype, mtype.name, Style.RESET_ALL, message))
+    log_file = open('SR-71.log', 'a')
+    log_file.write('[SR-71] [%s] %s\n' % (mtype.name, message))
+    log_file.closed
     
 def query_yes_no(question, default="yes"):
     '''Ask a yes/no question via raw_input() and return their answer.
@@ -80,6 +84,10 @@ class SR_71:
         pass
     
     def run(self):
+        if not verify_forensic():
+            if not query_yes_no("Would you like to continue", default="no"):
+                sys.exit(1);
+                
         cmd_modules = glob.glob('modules/*.cmd')
         modules = [ [None],
                     [Updates(), Users()], 
@@ -97,7 +105,7 @@ class SR_71:
         for x in range(0,10):
             if modules[x][0] != None:
                 for py in modules[x]:
-                    log("Starting %s" % py.task, Log_Types.TASK)
+                    log("--------%s--------" % py.task, Log_Types.TASK)
                     py.run()
                     log(py.task, Log_Types.FINISHED)
             for cmd in cmd_modules:
