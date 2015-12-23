@@ -1,9 +1,7 @@
-import sys, enum,shlex, subprocess, re, os
+import sys, enum,shlex, subprocess, re, os, logging
 from collections import Counter
-
+import users
 class Color(enum.Enum):
-    def __str__(self):
-        return str(self.value)
     RED = '\033[0;31m'
     GREEN ='\033[0;32m'
     YELLOW ='\033[1;33m'
@@ -14,15 +12,23 @@ class Color(enum.Enum):
     MAGENTA ='\033[0;37m'
     NC ='\033[0m'
 class Log_Types(enum.Enum):
-    def __str__(self):
-        return str(self.value)
     WARNING = Color.YELLOW
     ERROR = Color.RED
     SUCCESS = Color.GREEN
     TASK = Color.GRAY
     PROMPT = Color.CYAN
     
-def log(message, mtype):
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('hello.log')
+fmter = logging.Formatter("[SR-71] - %(module)s - %(message)s")
+handler.setLevel(logging.ERROR)
+handler.setFormatter(fmter)
+logger.addHandler(handler)
+
+def log(message):
+    logger.info(message)    
+def message(message, mtype):
     print("[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, mtype, mtype.name, Color.NC, message))
 def query_yes_no(question, default="yes"):
     '''Ask a yes/no question via raw_input() and return their answer.
@@ -55,7 +61,6 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 def command(command):
-    
     args = shlex.split(command)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     (out, err) = p.communicate()
@@ -72,11 +77,9 @@ def verify_forensic():
         if "Forensic" in i:
             lines =  open(os.path.expanduser("~")+"\\Desktop\\"+i).read()
             if lines.count("<Type Answer Here>") == 3:
-                log("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
+                message("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
                 return False
     return True
 # if not verify_forensic():
 #     if not query_yes_no("Do you want to continue?", default = "no"):
 #         sys.exit()
-        
-    
