@@ -1,35 +1,27 @@
-import sys, enum,shlex, subprocess, re, os, logging
+import sys, enum, shlex, subprocess, re, os, glob
+from colorama import Back, Fore, Style, init
+init()
 from collections import Counter
-import users
-class Color(enum.Enum):
-    RED = '\033[0;31m'
-    GREEN ='\033[0;32m'
-    YELLOW ='\033[1;33m'
-    CYAN ='\033[0;36m'
-    BCYAN ='\033[1;36m'
-    PURPLE ='\033[0;35m'
-    GRAY ='\033[0;37m'
-    MAGENTA ='\033[0;37m'
-    NC ='\033[0m'
-class Log_Types(enum.Enum):
-    WARNING = Color.YELLOW
-    ERROR = Color.RED
-    SUCCESS = Color.GREEN
-    TASK = Color.GRAY
-    PROMPT = Color.CYAN
-    
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler('hello.log')
-fmter = logging.Formatter("[SR-71] - %(module)s - %(message)s")
-handler.setLevel(logging.ERROR)
-handler.setFormatter(fmter)
-logger.addHandler(handler)
 
-def log(message):
-    logger.info(message)    
-def message(message, mtype):
-    print("[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, mtype, mtype.name, Color.NC, message))
+from modules.py_modules import *
+    
+
+class Log_Types(enum.Enum):
+    def __str__(self):
+        return str(self.value)
+    WARNING = Fore.YELLOW
+    ERROR = Fore.RED
+    FINISHED = Fore.GREEN
+    TASK = Fore.CYAN
+    PROMPT = Fore.LIGHTBLACK_EX
+    LOG = Fore.MAGENTA
+    
+def log(message, mtype, write=True):
+    print("[%sSR-71%s] [%s%s%s] %s" % (Fore.BLUE, Style.RESET_ALL, mtype, mtype.name, Style.RESET_ALL, message))
+    log_file = open('SR-71.log', 'a')
+    log_file.write('[SR-71] [%s] %s\n' % (mtype.name, message))
+    log_file.closed
+
 def query_yes_no(question, default="yes"):
     '''Ask a yes/no question via raw_input() and return their answer.
     :param question: is a string that is presented to the user.
@@ -60,11 +52,16 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
-def command(command):
+            
+def command(command, expected_errors=[0]):
     args = shlex.split(command)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    (out, err) = p.communicate()
-    if p.returncode != 0:
+    out, err = p.communicate()
+    if p.returncode not in expected_errors:
+        code = "%s%s%s" %(Back.RED, p.returncode, Style.RESET_ALL)
+        returned = "%s%s%s" %(Back.RED, out, Style.RESET_ALL)
+        attempted_command = "%s%s%s" %(Back.RED, command, Style.RESET_ALL)
+        log("Unexpected response: \"%s:%s\" with command \"%s\"" % (code, returned, attempted_command), Log_Types.ERROR)
         return p.returncode
     out = out.decode()
     outputList = out.splitlines()
@@ -80,6 +77,43 @@ def verify_forensic():
                 message("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
                 return False
     return True
-# if not verify_forensic():
-#     if not query_yes_no("Do you want to continue?", default = "no"):
-#         sys.exit()
+
+class SR_71:
+    def __init__(self):
+        pass
+    
+    def run(self):
+        if not verify_forensic():
+            if not query_yes_no("Would you like to continue", default="no"):
+                sys.exit(1);
+                
+        cmd_modules = glob.glob('modules/*.cmd')
+        modules = [ [None],
+                    [Updates(), Users()], 
+                    [Policies()],
+                    [Firewall(), Remote(), Shares()],
+                    [None],
+                    [None],
+                    [None],
+                    [None],
+                    [None],
+                    [None],
+                    [None]]
+        
+        
+        for x in range(0,10):
+            if modules[x][0] != None:
+                for py in modules[x]:
+                    log("--------%s--------" % py.task, Log_Types.TASK)
+                    py.run()
+                    log(py.task, Log_Types.FINISHED)
+            for cmd in cmd_modules:
+                if command("%s priority" % cmd, expected_errors=range(0,10)) == x:
+                    log("Starting %s" % cmd, Log_Types.TASK)
+                    command(cmd)
+                    log(cmd, Log_Types.FINISHED)
+
+
+if __name__ == '__main__':
+    sr = SR_71()
+    sr.run()
