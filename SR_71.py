@@ -1,6 +1,5 @@
 import sys, enum, shlex, subprocess, re, os, glob
 from colorama import Back, Fore, Style, init
-from colorama.ansi import Style
 init()
 from collections import Counter
 
@@ -22,7 +21,7 @@ def log(message, mtype, write=True):
     log_file = open('SR-71.log', 'a')
     log_file.write('[SR-71] [%s] %s\n' % (mtype.name, message))
     log_file.closed
-    
+
 def query_yes_no(question, default="yes"):
     '''Ask a yes/no question via raw_input() and return their answer.
     :param question: is a string that is presented to the user.
@@ -53,8 +52,8 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
+            
 def command(command, expected_errors=[0]):
-    
     args = shlex.split(command)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     out, err = p.communicate()
@@ -75,7 +74,7 @@ def verify_forensic():
         if "Forensic" in i:
             lines =  open(os.path.expanduser("~")+"\\Desktop\\"+i).read()
             if lines.count("<Type Answer Here>") == 3:
-                log("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
+                message("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
                 return False
     return True
 
