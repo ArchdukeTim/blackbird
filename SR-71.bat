@@ -26,12 +26,17 @@ if '%errorlevel%' NEQ '0' (
     pushd "%CD%"
     CD /D "%~dp0"
 
-:run
-C:\Python34\py.exe SR_71.py
+:test
+C:\Python34\py.exe test
 
 if errorlevel 3 (
 	msiexec /qb+ /i resources\python-3.4.4.amd64.msi
-	goto run
+	goto test
 )
+if errorlevel 2 (
+	C:\Python34\Scripts\pip.exe install colorama
+	C:\Python34\py.exe SR_71.py
+)
+
 
 pause

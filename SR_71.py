@@ -1,29 +1,23 @@
-import sys, enum,shlex, subprocess, re, os
+import sys, enum, shlex, subprocess, re, os, glob
+from colorama import Back, Fore, Style, init
+init()
 from collections import Counter
 
-class Color(enum.Enum):
-    def __str__(self):
-        return str(self.value)
-    RED = '\033[0;31m'
-    GREEN ='\033[0;32m'
-    YELLOW ='\033[1;33m'
-    CYAN ='\033[0;36m'
-    BCYAN ='\033[1;36m'
-    PURPLE ='\033[0;35m'
-    GRAY ='\033[0;37m'
-    MAGENTA ='\033[0;37m'
-    NC ='\033[0m'
+from modules.py_modules import *
+    
+
 class Log_Types(enum.Enum):
     def __str__(self):
         return str(self.value)
-    WARNING = Color.YELLOW
-    ERROR = Color.RED
-    SUCCESS = Color.GREEN
-    TASK = Color.GRAY
-    PROMPT = Color.CYAN
+    WARNING = Fore.YELLOW
+    ERROR = Fore.RED
+    SUCCESS = Fore.GREEN
+    TASK = Fore.CYAN
+    PROMPT = Fore.LIGHTBLACK_EX
     
 def log(message, mtype):
-    print("[%sSR-71%s] [%s%s%s] %s" % (Color.MAGENTA, Color.NC, mtype, mtype.name, Color.NC, message))
+    print("[%sSR-71%s] [%s%s%s] %s" % (Fore.CYAN, Style.RESET_ALL, mtype, mtype.name, Style.RESET_ALL, message))
+    
 def query_yes_no(question, default="yes"):
     '''Ask a yes/no question via raw_input() and return their answer.
     :param question: is a string that is presented to the user.
@@ -75,8 +69,35 @@ def verify_forensic():
                 log("Forensics Question [%s] Not Answered" % i, Log_Types.ERROR)
                 return False
     return True
-# if not verify_forensic():
-#     if not query_yes_no("Do you want to continue?", default = "no"):
-#         sys.exit()
-        
+
+class SR_71:
+    def __init__(self):
+        pass
     
+    def run(self):
+        cmd_modules = glob.glob('modules/*.cmd')
+        modules = [ [None],
+                    [Updates(), Users()], 
+                    [Policies()],
+                    [Firewall(), Remote(), Shares()],
+                    [None],
+                    [None],
+                    [None],
+                    [None],
+                    [None],
+                    [None],
+                    [None]]
+        
+        
+        for x in range(0,10):
+            if modules[x][0] != None:
+                for py in modules[x]:
+                    py.run()
+            for cmd in cmd_modules:
+                if command("%s priority" % cmd) == x:
+                    command(cmd)
+
+
+if __name__ == '__main__':
+    sr = SR_71()
+    sr.run()
