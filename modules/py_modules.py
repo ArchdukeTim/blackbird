@@ -1,6 +1,6 @@
 from SR_71 import command, log, Log_Types, query_yes_no
 import os
-from colorama import Back, Style
+from colorama import Fore, Style
 
             
 class Updates:
@@ -28,7 +28,7 @@ class Users:
                 continue
             
             user = user.replace(" ", "")
-            cuser = Back.RED + user +Style.RESET_ALL
+            cuser = Fore.RED + user +Style.RESET_ALL
             if query_yes_no("Is %s an authorized user?" % cuser):
                 print("Allowing user %s to stay" % cuser)
                 command("net user %s CyberPatriot1!" % user)

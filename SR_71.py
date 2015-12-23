@@ -1,5 +1,6 @@
 import sys, enum, shlex, subprocess, re, os, glob
 from colorama import Back, Fore, Style, init
+from colorama.ansi import Style
 init()
 from collections import Counter
 
@@ -48,12 +49,16 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
-def command(command):
+def command(command, expected_errors=[0]):
     
     args = shlex.split(command)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    (out, err) = p.communicate()
-    if p.returncode != 0:
+    out, err = p.communicate()
+    if p.returncode not in expected_errors:
+        code = "%s%s%s" %(Back.RED, p.returncode, Style.RESET_ALL)
+        returned = "%s%s%s" %(Back.RED, out, Style.RESET_ALL)
+        attempted_command = "%s%s%s" %(Back.RED, command, Style.RESET_ALL)
+        log("Unexpected response: \"%s:%s\" with command \"%s\"" % (code, returned, attempted_command), Log_Types.ERROR)
         return p.returncode
     out = out.decode()
     outputList = out.splitlines()
@@ -96,7 +101,7 @@ class SR_71:
                     py.run()
                     log(py.task, Log_Types.FINISHED)
             for cmd in cmd_modules:
-                if command("%s priority" % cmd) == x:
+                if command("%s priority" % cmd, expected_errors=range(0,10)) == x:
                     log("Starting %s" % cmd, Log_Types.TASK)
                     command(cmd)
                     log(cmd, Log_Types.FINISHED)
