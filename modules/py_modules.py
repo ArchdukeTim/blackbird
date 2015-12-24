@@ -2,7 +2,7 @@ from SR_71 import command, log, log, Log_Types, query_yes_no
 import os
 from colorama import Fore, Style
 
-            
+
 class Updates:
     task = "Updates"
     def run(self):
@@ -13,7 +13,7 @@ class Updates:
             return 1;
         if query_yes_no("Have you configured windows update?"):
             pass
-    
+
 class Users:
     task = "Users"
     def run(self):
@@ -24,11 +24,12 @@ class Users:
         del users[0]
         for user in users:
             #log(user, Log_Types.WARNING)
+            user = user.rstrip().replace(" ", "\ ")
             if any("Built-in" in x for x in command("net user %s" % user)):
                 command("net user %s CyberPatriot1!" % user)
                 command("net user %s /ACTIVE NO" % user)
                 continue
-            
+
             user = user.replace(" ", "")
             cuser = Fore.RED + user +Style.RESET_ALL
             if query_yes_no("Is %s an authorized user?" % cuser):
@@ -36,13 +37,13 @@ class Users:
                 command("net user %s CyberPatriot1!" % user)
             else:
                 print("Removing user  %s" % cuser)
-            
+
             if any("*Administrators" in x for x in command("net user %s" % user)):
                 if not query_yes_no("Is %s an authorized administrator?" % cuser):
                     print("Removing %s " % cuser +" from Administrators")
                     command("net localgroup administrators %s /delete" % user)
-                    
-                    
+
+
 class Policies:
     task = "Policies"
     def run(self):
@@ -78,21 +79,21 @@ class IllegalMedia:
         self.removeFileType("mp4")
         self.removeFileType("jpg")
         self.removeFileType("jpeg")
-        
+
     def removeFileType(self, fileType):
         if query_yes_no("do you wish to remove all %s files?" % fileType):
             command("del /s *.%s" % fileType)
-            
+
 class Remote:
     task = "Remote"
     def run(self):
         command("reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\CurrentControlSet\Control\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 1 /f")
         command("reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\CurrentControlSet\Control\Remote Assistance\" /v fAllowToGetHelp /t REG_DWORD /d 0 /f")
-        
+
 
 class Shares:
     task = "Shares"
-    def run(self): 
+    def run(self):
         shares = command("net share")
         shares = shares[2:-1]
         print(shares)
