@@ -6,8 +6,9 @@ from colorama import Fore, Style
 class Updates:
     task = "Updates"
     def run(self):
-        command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
-        update = command("wuapp.exe")
+        #command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
+        #update = command("wuapp.exe")
+        update = command("start cscript resources/update.vbs")
         if update == 1:
             log("Could not start windows update", Log_Types.ERROR)
             return 1;
