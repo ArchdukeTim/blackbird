@@ -81,6 +81,7 @@ class IllegalMedia:
         self.removeFileType("jpeg")
 
     def removeFileType(self, fileType):
+        os.chdir(os.path.normpath("C:/Users/"))
         if query_yes_no("do you wish to remove all %s files?" % fileType):
             command("del /s *.%s" % fileType)
 
