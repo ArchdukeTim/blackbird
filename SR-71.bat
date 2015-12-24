@@ -32,7 +32,11 @@ C:\Python34\py.exe test
 if errorlevel 3 (
 	cls
 	echo Installing Python3 prerequisite.
-	msiexec /qb+ /i resources\python-3.4.4.amd64.msi
+	if %PROCESSOR_ARCHITECTURE%==x86 (
+		msiexec /qb+ /i resources\python-3.4.4.msi
+	else (
+		msiexec /qb+ /i resources\python-3.4.4.amd64.msi
+	)
 	goto test
 )
 if errorlevel 2 (
