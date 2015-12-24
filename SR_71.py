@@ -88,30 +88,15 @@ class SR_71:
                 sys.exit(1);
                 
         cmd_modules = glob.glob('modules/*.cmd')
-        modules = [ [None],
-                    [Updates(), Users()], 
-                    [Policies()],
-                    [Firewall(), Remote(), Shares()],
-                    [None],
-                    [None],
-                    [None],
-                    [None],
-                    [None],
-                    [None],
-                    [None]]
+        modules = [ [Updates(), Users()], 
+                    [Policies(), IllegalMedia()],
+                    [Firewall(), Remote(), Shares()]]
         
-        
-        for x in range(0,10):
-            if modules[x][0] != None:
-                for py in modules[x]:
-                    log("--------%s--------" % py.task, Log_Types.TASK)
-                    py.run()
-                    log(py.task, Log_Types.FINISHED)
-            for cmd in cmd_modules:
-                if command("%s priority" % cmd, expected_errors=range(0,10)) == x:
-                    log("Starting %s" % cmd, Log_Types.TASK)
-                    command(cmd)
-                    log(cmd, Log_Types.FINISHED)
+        for priorityLevel in modules:
+            for py in priorityLevel:
+                log("--------%s--------" % py.task, Log_Types.TASK)
+                py.run()
+                log(py.task, Log_Types.FINISHED)
 
 
 if __name__ == '__main__':
