@@ -55,9 +55,10 @@ class Policies:
             log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
             return 1;
         command("secedit /configure /db %temp%\\temp.sdb /cfg Policies_Services_Template.inf")
+        os.chdir(cwd)
         log("Loaded security policy. Check Appendices for specific settings", Log_Types.LOG)
 
-class Firewall:
+class Firewall: 
     task = "Firewall"
     def run(self):
         command("netsh advfirewall set allprofiles state on") # turn on firewall for all types
@@ -84,7 +85,8 @@ class IllegalMedia:
     def removeFileType(self, fileType):
         os.chdir(os.path.normpath("C:/Users/"))
         if query_yes_no("do you wish to remove all %s files?" % fileType):
-            command("del /s *.%s" % fileType)
+            files = command("del /s *.%s" % fileType)
+            # log file name from files
 
 class Remote:
     task = "Remote"
@@ -106,4 +108,50 @@ class Shares:
 class Features:
     task = "Windows Features"
     def run(self):
+        log("Configuring Windows Features", Log_Types.LOG)
         command("optionalfeatures")
+class UAC:
+    task = "User Account Control"
+    def run(self):
+        log("Configuring UAC", Log_Types.LOG)
+        command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
+        command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v FilterAdministratorToken /t REG_DWORD /d 0 /f")
+        command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
+        command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
+        command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
+class Power:
+    task = "Password on Wakeup"
+    def run(self):
+        command("powercfg -SETACVALUEINDEX SCHEME_MAX SUB_NONE CONSOLELOCK 0")
+        command("powercfg -SETDCVALUEINDEX SCHEME_MAX SUB_NONE CONSOLELOCK 0")
+        log("Password required on wakeup", Log_Types.LOG)
+class Malware:
+    task = "Install Malwarebytes"
+    def run(self):
+        cwd = os.getcwd()
+        try:
+            os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/"))
+        except(FileNotFoundError):
+            log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
+            return 1;
+        command("start Malwarebytes_Installer.exe")#include malwarebytes installer file
+        command("set /p=Press any key when malwarebytes is finished installing...")
+        while True:
+            try:
+                os.chdir(os.path.normpath("C:/Program Files (x86)/Malwarebytes’ Anti-Malware"))
+            except(FileNotFoundError):
+                command("set /p=Malwarebytes not installed. Press any key when it's installed.")
+                continue
+            command("start mbam.exe /runupdate /fullauto")
+            break
+        os.chdir(cwd)
+class Firefox:
+    task = "Update Firefox "
+    cwd = os.getcwd()
+    try:
+        os.chdir(os.path.normpath("C:/Program Files (x86)/Mozilla Firefox/"))
+    except(FileNotFoundError):
+        os.chdir(os.path.normpath("C:/Program Files/Mozilla Firefox/"))
+    command("start Firefox-Setup*")
+    log("Updated firefox", Log_Types.LOG)
+            
