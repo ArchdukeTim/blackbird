@@ -102,3 +102,8 @@ class Shares:
         for share in shares:
             print (share.split(' ', 1)[0])
             command("net share %s /DELETE" % share)
+
+class Features:
+    task = "Windows Features"
+    def run(self):
+        command("optionalfeatures")
