@@ -154,4 +154,10 @@ class Firefox:
         os.chdir(os.path.normpath("C:/Program Files/Mozilla Firefox/"))
     command("start Firefox-Setup*")
     log("Updated firefox", Log_Types.LOG)
+class DNS:
+    task = "Flush DNS Cache"
+    command("ipconfig /flushdns")
+class DEP:
+    task = "Turn on Data Execution Prevention"
+    command("bcdedit.exe /set {current} nx AlwaysOn")
             
