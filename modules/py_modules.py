@@ -6,8 +6,8 @@ from colorama import Fore, Style
 class Updates:
     task = "Updates"
     def run(self):
-        #command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
-        #update = command("wuapp.exe")
+        # command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
+        # update = command("wuapp.exe")
         update = command("start cscript resources/update.vbs")
         if update == 1:
             log("Could not start windows update", Log_Types.ERROR)
@@ -24,7 +24,7 @@ class Users:
             return False
         del users[0]
         for user in users:
-            #log(user, Log_Types.WARNING)
+            # log(user, Log_Types.WARNING)
             user = user.rstrip().replace(" ", "\ ")
             if any("Built-in" in x for x in command("net user %s" % user)):
                 command("net user %s CyberPatriot1!" % user)
@@ -32,7 +32,7 @@ class Users:
                 continue
 
             user = user.replace(" ", "")
-            cuser = Fore.RED + user +Style.RESET_ALL
+            cuser = Fore.RED + user + Style.RESET_ALL
             if query_yes_no("Is %s an authorized user?" % cuser):
                 print("Allowing user %s to stay" % cuser)
                 command("net user %s CyberPatriot1!" % user)
@@ -41,7 +41,7 @@ class Users:
 
             if any("*Administrators" in x for x in command("net user %s" % user)):
                 if not query_yes_no("Is %s an authorized administrator?" % cuser):
-                    print("Removing %s " % cuser +" from Administrators")
+                    print("Removing %s " % cuser + " from Administrators")
                     command("net localgroup administrators %s /delete" % user)
 
 
@@ -50,7 +50,7 @@ class Policies:
     def run(self):
         cwd = os.getcwd()
         try:
-            os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/"))
+            os.chdir(os.path.expanduser("~") + os.path.normpath("/Desktop/\CyberPatriot Tools/"))
         except(FileNotFoundError):
             log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
             return 1;
@@ -61,15 +61,15 @@ class Policies:
 class Firewall: 
     task = "Firewall"
     def run(self):
-        command("netsh advfirewall set allprofiles state on") # turn on firewall for all types
+        command("netsh advfirewall set allprofiles state on")  # turn on firewall for all types
         log("Turned on firewall", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log") # set log file
+        command("netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log")  # set log file
         log("Set log file", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging maxfilesize 4096") # set log file size
+        command("netsh advfirewall set allprofiles logging maxfilesize 4096")  # set log file size
         log("Set log file size", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging droppedconnections enable") # set logging for dropped packets
+        command("netsh advfirewall set allprofiles logging droppedconnections enable")  # set logging for dropped packets
         log("Set logging for droped packets", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging allowedconnections enable") # set logging for connected packets
+        command("netsh advfirewall set allprofiles logging allowedconnections enable")  # set logging for connected packets
         log("Set logging for connected packets", Log_Types.LOG)
         command("netsh advfirewall set allprofiles firewallpolicy blockinboundalways,allowoutbound")
         log("Block inbounds, allow outbound", Log_Types.LOG)
@@ -110,6 +110,7 @@ class Features:
     def run(self):
         log("Configuring Windows Features", Log_Types.LOG)
         command("optionalfeatures")
+        
 class UAC:
     task = "User Account Control"
     def run(self):
@@ -125,16 +126,17 @@ class Power:
         command("powercfg -SETACVALUEINDEX SCHEME_MAX SUB_NONE CONSOLELOCK 0")
         command("powercfg -SETDCVALUEINDEX SCHEME_MAX SUB_NONE CONSOLELOCK 0")
         log("Password required on wakeup", Log_Types.LOG)
+        
 class Malware:
     task = "Install Malwarebytes"
     def run(self):
         cwd = os.getcwd()
         try:
-            os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/"))
+            os.chdir(os.path.expanduser("~") + os.path.normpath("/Desktop/\CyberPatriot Tools/"))
         except(FileNotFoundError):
             log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
             return 1;
-        command("start Malwarebytes_Installer.exe")#include malwarebytes installer file
+        command("start Malwarebytes_Installer.exe")  # include malwarebytes installer file
         command("set /p=Press any key when malwarebytes is finished installing...")
         while True:
             try:
@@ -145,6 +147,7 @@ class Malware:
             command("start mbam.exe /runupdate /fullauto")
             break
         os.chdir(cwd)
+        
 class Firefox:
     task = "Update Firefox "
     cwd = os.getcwd()
@@ -154,10 +157,23 @@ class Firefox:
         os.chdir(os.path.normpath("C:/Program Files/Mozilla Firefox/"))
     command("start Firefox-Setup*")
     log("Updated firefox", Log_Types.LOG)
+    
 class DNS:
     task = "Flush DNS Cache"
     command("ipconfig /flushdns")
+    
 class DEP:
     task = "Turn on Data Execution Prevention"
-    command("bcdedit.exe /set {current} nx AlwaysOn")
-            
+    def run(self):
+        command("bcdedit.exe /set {current} nx AlwaysOn")
+        
+class MBSA:
+    task = "Installing Microsoft Baseline Security Analyzer"
+    def run(self):
+        cwd = os.getcwd()
+        try:
+            os.chdir(os.path.expanduser("~") + os.path.normpath("/Desktop/\CyberPatriot Tools/"))
+        except(FileNotFoundError):
+            log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
+            return 1;
+        command("msiexec /i MBSA_Installer.msi /qn /norestart /update")
