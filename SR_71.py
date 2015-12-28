@@ -56,6 +56,8 @@ def query_yes_no(question, default="yes"):
 def command(command, expected_errors=[0]):
     args = shlex.split(command)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    if "start" in args:
+        return 0;
     out, err = p.communicate()
     if p.returncode not in expected_errors:
         code = "%s%s%s" %(Back.RED, p.returncode, Style.RESET_ALL)
