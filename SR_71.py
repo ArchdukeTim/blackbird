@@ -55,7 +55,10 @@ def query_yes_no(question, default="yes"):
             
 def command(command, expected_errors=[0]):
     args = shlex.split(command)
+    #log(args, Log_Types.LOG)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    if "start" in args:
+        return 0;
     out, err = p.communicate()
     if p.returncode not in expected_errors:
         code = "%s%s%s" %(Back.RED, p.returncode, Style.RESET_ALL)
@@ -80,7 +83,8 @@ def verify_forensic():
 
 class SR_71:
     def __init__(self):
-        pass
+        import struct
+        self.processor_architecture = struct.calcsize("P") * 8
     
     def run(self):
         if not verify_forensic():
@@ -90,7 +94,7 @@ class SR_71:
         cmd_modules = glob.glob('modules/*.cmd')
         modules = [ [Updates(), Users()], 
                     [Policies(), IllegalMedia()],
-                    [Firewall(), Remote(), Shares()]]
+                    [Firewall(), Remote(), Shares(), Features(), UAC(), Power(), Malware(), Firefox(), DNS(), DEP(), MBSA(self.processor_architecture)]]
         
         for priorityLevel in modules:
             for py in priorityLevel:

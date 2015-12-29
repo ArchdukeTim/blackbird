@@ -1,6 +1,7 @@
 from SR_71 import command, log, log, Log_Types, query_yes_no
 import os
 from colorama import Fore, Style
+from logging import logThreads
 
 
 class Updates:
@@ -83,10 +84,12 @@ class IllegalMedia:
         self.removeFileType("jpeg")
 
     def removeFileType(self, fileType):
+        cwd = os.getcwd()
         os.chdir(os.path.normpath("C:/Users/"))
         if query_yes_no("do you wish to remove all %s files?" % fileType):
             files = command("del /s *.%s" % fileType)
             # log file name from files
+        os.chdir(cwd)
 
 class Remote:
     task = "Remote"
@@ -120,6 +123,7 @@ class UAC:
         command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
         command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
         command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
+        
 class Power:
     task = "Password on Wakeup"
     def run(self):
@@ -130,38 +134,22 @@ class Power:
 class Malware:
     task = "Install Malwarebytes"
     def run(self):
-        cwd = os.getcwd()
-        try:
-            os.chdir(os.path.expanduser("~") + os.path.normpath("/Desktop/\CyberPatriot Tools/"))
-        except(FileNotFoundError):
-            log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
-            return 1;
-        command("start Malwarebytes_Installer.exe")  # include malwarebytes installer file
-        command("set /p=Press any key when malwarebytes is finished installing...")
-        while True:
-            try:
-                os.chdir(os.path.normpath("C:/Program Files (x86)/Malwarebytes’ Anti-Malware"))
-            except(FileNotFoundError):
-                command("set /p=Malwarebytes not installed. Press any key when it's installed.")
-                continue
-            command("start mbam.exe /runupdate /fullauto")
-            break
-        os.chdir(cwd)
+        command("start resources/mbam-setup-2.2.0.1024.exe")#include malwarebytes installer file
+        log("Press any key when malwarebytes is finished installing...", Log_Types.LOG)
+        command("set /p=", expected_errors=[0,1])
         
 class Firefox:
     task = "Update Firefox "
-    cwd = os.getcwd()
-    try:
-        os.chdir(os.path.normpath("C:/Program Files (x86)/Mozilla Firefox/"))
-    except(FileNotFoundError):
-        os.chdir(os.path.normpath("C:/Program Files/Mozilla Firefox/"))
-    command("start Firefox-Setup*")
-    log("Updated firefox", Log_Types.LOG)
-    
+    def run(self):
+        command("start resources/Firefox_Setup_Stub_43.0.3.exe")
+        log("Press any key when firefox is finished installing...", Log_Types.LOG)
+        command("set /p=", expected_errors=[0,1])
+        
 class DNS:
     task = "Flush DNS Cache"
-    command("ipconfig /flushdns")
-    
+    def run(self):
+        command("ipconfig /flushdns")
+        
 class DEP:
     task = "Turn on Data Execution Prevention"
     def run(self):
@@ -169,11 +157,15 @@ class DEP:
         
 class MBSA:
     task = "Installing Microsoft Baseline Security Analyzer"
+    def __init__(self, processor_architecture):
+        self.processor_architecture = processor_architecture
+    
     def run(self):
-        cwd = os.getcwd()
-        try:
-            os.chdir(os.path.expanduser("~") + os.path.normpath("/Desktop/\CyberPatriot Tools/"))
-        except(FileNotFoundError):
-            log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
-            return 1;
-        command("msiexec /i MBSA_Installer.msi /qn /norestart /update")
+        installer = None
+        
+        if(self.processor_architecture == 64):
+            installer = r"resources\\MBSASetup-x64-EN.msi"
+        else:
+            installer = r"resources\\MBSASetup-x86-EN.msi"
+        
+        command("msiexec /i %s" % installer)
