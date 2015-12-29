@@ -1,6 +1,7 @@
 from SR_71 import command, log, log, Log_Types, query_yes_no
 import os
 from colorama import Fore, Style
+from logging import logThreads
 
 
 class Updates:
@@ -83,10 +84,12 @@ class IllegalMedia:
         self.removeFileType("jpeg")
 
     def removeFileType(self, fileType):
+        cwd = os.getcwd()
         os.chdir(os.path.normpath("C:/Users/"))
         if query_yes_no("do you wish to remove all %s files?" % fileType):
             files = command("del /s *.%s" % fileType)
             # log file name from files
+        os.chdir(cwd)
 
 class Remote:
     task = "Remote"
@@ -110,6 +113,7 @@ class Features:
     def run(self):
         log("Configuring Windows Features", Log_Types.LOG)
         command("optionalfeatures")
+        
 class UAC:
     task = "User Account Control"
     def run(self):
@@ -119,39 +123,27 @@ class UAC:
         command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
         command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
         command("reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 1 /f")
+        
 class Power:
     task = "Password on Wakeup"
     def run(self):
         command("powercfg -SETACVALUEINDEX SCHEME_MAX SUB_NONE CONSOLELOCK 0")
         command("powercfg -SETDCVALUEINDEX SCHEME_MAX SUB_NONE CONSOLELOCK 0")
         log("Password required on wakeup", Log_Types.LOG)
+        
 class Malware:
     task = "Install Malwarebytes"
     def run(self):
-        cwd = os.getcwd()
-        try:
-            os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/"))
-        except(FileNotFoundError):
-            log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
-            return 1;
-        command("start Malwarebytes_Installer.exe")#include malwarebytes installer file
-        command("set /p=Press any key when malwarebytes is finished installing...")
-        while True:
-            try:
-                os.chdir(os.path.normpath("C:/Program Files (x86)/Malwarebytes’ Anti-Malware"))
-            except(FileNotFoundError):
-                command("set /p=Malwarebytes not installed. Press any key when it's installed.")
-                continue
-            command("start mbam.exe /runupdate /fullauto")
-            break
-        os.chdir(cwd)
+        log(os.getcwd(), Log_Types.WARNING)
+        command("start resources/mbam-setup-2.2.0.1024.exe")#include malwarebytes installer file
+        log("Press any key when malwarebytes is finished installing...", Log_Types.LOG)
+        command("set /p=")
+        
 class Firefox:
     task = "Update Firefox "
-    cwd = os.getcwd()
-    try:
-        os.chdir(os.path.normpath("C:/Program Files (x86)/Mozilla Firefox/"))
-    except(FileNotFoundError):
-        os.chdir(os.path.normpath("C:/Program Files/Mozilla Firefox/"))
-    command("start Firefox-Setup*")
-    log("Updated firefox", Log_Types.LOG)
+    def run(self):
+        cwd = os.getcwd()
+        command("start resources/Firefox_Setup_Stub_43.0.3.exe")
+        log("Press any key when firefox is finished installing...", Log_Types.LOG)
+        command("set /p=")
             

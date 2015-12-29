@@ -55,6 +55,7 @@ def query_yes_no(question, default="yes"):
             
 def command(command, expected_errors=[0]):
     args = shlex.split(command)
+    #log(args, Log_Types.LOG)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     if "start" in args:
         return 0;
@@ -92,7 +93,7 @@ class SR_71:
         cmd_modules = glob.glob('modules/*.cmd')
         modules = [ [Updates(), Users()], 
                     [Policies(), IllegalMedia()],
-                    [Firewall(), Remote(), Shares()]]
+                    [Firewall(), Remote(), Shares(), Features(), UAC(), Power(), Malware(), Firefox()]]
         
         for priorityLevel in modules:
             for py in priorityLevel:
