@@ -83,7 +83,8 @@ def verify_forensic():
 
 class SR_71:
     def __init__(self):
-        pass
+        import struct
+        self.processor_architecture = struct.calcsize("P") * 8
     
     def run(self):
         if not verify_forensic():
@@ -93,7 +94,7 @@ class SR_71:
         cmd_modules = glob.glob('modules/*.cmd')
         modules = [ [Updates(), Users()], 
                     [Policies(), IllegalMedia()],
-                    [Firewall(), Remote(), Shares(), Features(), UAC(), Power(), Malware(), Firefox(), DNS(), DEP()]]
+                    [Firewall(), Remote(), Shares(), Features(), UAC(), Power(), Malware(), Firefox(), DNS(), DEP(), MBSA(self.processor_architecture)]]
         
         for priorityLevel in modules:
             for py in priorityLevel:

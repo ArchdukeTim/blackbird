@@ -7,8 +7,8 @@ from logging import logThreads
 class Updates:
     task = "Updates"
     def run(self):
-        #command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
-        #update = command("wuapp.exe")
+        # command("reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\" /v AUOptions /t REG_DWORD /d 0 /f")
+        # update = command("wuapp.exe")
         update = command("start cscript resources/update.vbs")
         if update == 1:
             log("Could not start windows update", Log_Types.ERROR)
@@ -25,7 +25,7 @@ class Users:
             return False
         del users[0]
         for user in users:
-            #log(user, Log_Types.WARNING)
+            # log(user, Log_Types.WARNING)
             user = user.rstrip().replace(" ", "\ ")
             if any("Built-in" in x for x in command("net user %s" % user)):
                 command("net user %s CyberPatriot1!" % user)
@@ -33,7 +33,7 @@ class Users:
                 continue
 
             user = user.replace(" ", "")
-            cuser = Fore.RED + user +Style.RESET_ALL
+            cuser = Fore.RED + user + Style.RESET_ALL
             if query_yes_no("Is %s an authorized user?" % cuser):
                 print("Allowing user %s to stay" % cuser)
                 command("net user %s CyberPatriot1!" % user)
@@ -42,7 +42,7 @@ class Users:
 
             if any("*Administrators" in x for x in command("net user %s" % user)):
                 if not query_yes_no("Is %s an authorized administrator?" % cuser):
-                    print("Removing %s " % cuser +" from Administrators")
+                    print("Removing %s " % cuser + " from Administrators")
                     command("net localgroup administrators %s /delete" % user)
 
 
@@ -51,7 +51,7 @@ class Policies:
     def run(self):
         cwd = os.getcwd()
         try:
-            os.chdir(os.path.expanduser("~")+os.path.normpath("/Desktop/\CyberPatriot Tools/"))
+            os.chdir(os.path.expanduser("~") + os.path.normpath("/Desktop/\CyberPatriot Tools/"))
         except(FileNotFoundError):
             log("Failed to locate CyberPatriot Tools on desktop", Log_Types.ERROR)
             return 1;
@@ -62,15 +62,15 @@ class Policies:
 class Firewall: 
     task = "Firewall"
     def run(self):
-        command("netsh advfirewall set allprofiles state on") # turn on firewall for all types
+        command("netsh advfirewall set allprofiles state on")  # turn on firewall for all types
         log("Turned on firewall", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log") # set log file
+        command("netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log")  # set log file
         log("Set log file", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging maxfilesize 4096") # set log file size
+        command("netsh advfirewall set allprofiles logging maxfilesize 4096")  # set log file size
         log("Set log file size", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging droppedconnections enable") # set logging for dropped packets
+        command("netsh advfirewall set allprofiles logging droppedconnections enable")  # set logging for dropped packets
         log("Set logging for droped packets", Log_Types.LOG)
-        command("netsh advfirewall set allprofiles logging allowedconnections enable") # set logging for connected packets
+        command("netsh advfirewall set allprofiles logging allowedconnections enable")  # set logging for connected packets
         log("Set logging for connected packets", Log_Types.LOG)
         command("netsh advfirewall set allprofiles firewallpolicy blockinboundalways,allowoutbound")
         log("Block inbounds, allow outbound", Log_Types.LOG)
@@ -134,18 +134,16 @@ class Power:
 class Malware:
     task = "Install Malwarebytes"
     def run(self):
-        log(os.getcwd(), Log_Types.WARNING)
         command("start resources/mbam-setup-2.2.0.1024.exe")#include malwarebytes installer file
         log("Press any key when malwarebytes is finished installing...", Log_Types.LOG)
-        command("set /p=")
+        command("set /p=", expected_errors=[0,1])
         
 class Firefox:
     task = "Update Firefox "
     def run(self):
-        cwd = os.getcwd()
         command("start resources/Firefox_Setup_Stub_43.0.3.exe")
         log("Press any key when firefox is finished installing...", Log_Types.LOG)
-        command("set /p=")
+        command("set /p=", expected_errors=[0,1])
         
 class DNS:
     task = "Flush DNS Cache"
@@ -156,4 +154,18 @@ class DEP:
     task = "Turn on Data Execution Prevention"
     def run(self):
         command("bcdedit.exe /set {current} nx AlwaysOn")
-            
+        
+class MBSA:
+    task = "Installing Microsoft Baseline Security Analyzer"
+    def __init__(self, processor_architecture):
+        self.processor_architecture = processor_architecture
+    
+    def run(self):
+        installer = None
+        
+        if(self.processor_architecture == 64):
+            installer = r"resources\\MBSASetup-x64-EN.msi"
+        else:
+            installer = r"resources\\MBSASetup-x86-EN.msi"
+        
+        command("msiexec /i %s" % installer)
