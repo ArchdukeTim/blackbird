@@ -93,7 +93,7 @@ class SR_71:
         cmd_modules = glob.glob('modules/*.cmd')
         modules = [ [Updates(), Users()], 
                     [Policies(), IllegalMedia()],
-                    [Firewall(), Remote(), Shares(), Features(), UAC(), Power(), Malware(), Firefox()]]
+                    [Firewall(), Remote(), Shares(), Features(), UAC(), Power(), Malware(), Firefox(), DNS(), DEP()]]
         
         for priorityLevel in modules:
             for py in priorityLevel:

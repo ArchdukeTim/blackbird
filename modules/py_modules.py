@@ -146,4 +146,14 @@ class Firefox:
         command("start resources/Firefox_Setup_Stub_43.0.3.exe")
         log("Press any key when firefox is finished installing...", Log_Types.LOG)
         command("set /p=")
+        
+class DNS:
+    task = "Flush DNS Cache"
+    def run(self):
+        command("ipconfig /flushdns")
+        
+class DEP:
+    task = "Turn on Data Execution Prevention"
+    def run(self):
+        command("bcdedit.exe /set {current} nx AlwaysOn")
             
