@@ -135,15 +135,15 @@ class Malware:
     task = "Install Malwarebytes"
     def run(self):
         command("start resources/mbam-setup-2.2.0.1024.exe")#include malwarebytes installer file
-        log("Press any key when malwarebytes is finished installing...", Log_Types.LOG)
-        command("set /p=", expected_errors=[0,1])
+        #log("Press any key when malwarebytes is finished installing...", Log_Types.LOG)
+        #command("set /p=", expected_errors=[0,1])
         
 class Firefox:
     task = "Update Firefox "
     def run(self):
         command("start resources/Firefox_Setup_Stub_43.0.3.exe")
-        log("Press any key when firefox is finished installing...", Log_Types.LOG)
-        command("set /p=", expected_errors=[0,1])
+        #log("Press any key when firefox is finished installing...", Log_Types.LOG)
+        #command("set /p=", expected_errors=[0,1])
         
 class DNS:
     task = "Flush DNS Cache"
