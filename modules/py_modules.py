@@ -54,7 +54,15 @@ class Policies:
         
         command("secedit /configure /db %temp%\\temp.sdb /cfg resources/Policies_Services_Template.inf", [2,3])
         log("Loaded security policy. Check Appendices for specific settings", Log_Types.LOG)
- 
+        
+        
+class Programs:
+    task = "Add/Remove Programs"
+    def run(self):
+        command("control appwiz.cpl")
+        query_yes_no("Have you removed all the bad programs?") 
+        
+        
 class Firewall:
     task = "Firewall"
     def run(self):
