@@ -54,7 +54,7 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
             
 def command(command, expected_errors=[0]):
-    args = shlex.split(command)
+    args = shlex.split(command, posix=False)
     #log(args, Log_Types.LOG)
     p = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     if "start" in args:
